@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-SkyEmie_' 💜 https://github.com/SkyEmie
+SkyEmie_'  https://github.com/SkyEmie
 https://en.wikipedia.org/wiki/Luhn_algorithm
 """
 
@@ -25,12 +25,8 @@ def tryUnlockBootloader(checksum):
             if i == 'success':
                 return(algoOEMcode)
 
-        algoOEMcode = algoIncrementChecksum(algoOEMcode, checksum)
+        algoOEMcode += incrementCalculated
 
-
-def algoIncrementChecksum(genOEMcode, checksum):
-    genOEMcode+=int(checksum+math.sqrt(imei)*1024)
-    return(genOEMcode)
 
 def luhn_checksum(imei):
     def digits_of(n):
@@ -55,6 +51,7 @@ os.system('adb devices')
 
 imei     = int(input('Type IMEI digit :'))
 checksum = luhn_checksum(imei)
+incrementCalculated = int(checksum+math.sqrt(imei)*1024)
 input('Press any key to reboot your device..\n')
 os.system('adb reboot bootloader')
 input('Press any key when your device is ready.. (This may take time, depending on your cpu/serial port)\n')
@@ -68,3 +65,4 @@ print('\n\nDevice unlock ! OEM CODE : '+codeOEM)
 print('(Keep it safe)\n')
 input('Press any key to exit..\n')
 exit()
+
