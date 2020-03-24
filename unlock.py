@@ -17,8 +17,10 @@ def tryUnlockBootloader(checksum):
 
     unlock      = False
     algoOEMcode = 1000000000000000 #base
+    incrementCalculated = int(checksum+math.sqrt(imei)*1024)
     
     while(unlock == False):
+        print(algoOEMcode)
         sdrout = str(os.system('fastboot oem unlock '+str(algoOEMcode)))
         sdrout = sdrout.split(' ')
         for i in sdrout:
@@ -27,42 +29,41 @@ def tryUnlockBootloader(checksum):
 
         algoOEMcode += incrementCalculated
 
-
 def luhn_checksum(imei):
     def digits_of(n):
         return [int(d) for d in str(n)]
     digits = digits_of(imei)
-    oddDigits = digits[-1::-2]
-    evenDigits = digits[-2::-2]
+    oddDigits = digits[0::2]
+    evenDigits = digits[1::2]
     checksum = 0
     checksum += sum(oddDigits)
     for i in evenDigits:
         checksum += sum(digits_of(i*2))
-    return checksum % 10
+    return (10 - checksum % 10)
 
 ##########################################################################################################################
 
 print('\n\n           Unlock Bootloader script - By SkyEmie_\'')
 print('\n\n  (Please enable USB DEBBUG and OEM UNLOCK if the device isn\'t appear..)')
 print('  /!\ All data will be erased /!\\\n')
-input(' Press any key to detect device..\n')
+input(' Press Enter to detect device..\n')
 
 os.system('adb devices')
 
-imei     = int(input('Type IMEI digit :'))
-checksum = luhn_checksum(imei)
-incrementCalculated = int(checksum+math.sqrt(imei)*1024)
-input('Press any key to reboot your device..\n')
-os.system('adb reboot bootloader')
-input('Press any key when your device is ready.. (This may take time, depending on your cpu/serial port)\n')
+imei     = int(input('Type IMEI digit (14 digits):'))
 
-codeOEM = tryUnlockBootloader(checksum)
+input('Press Enter to reboot your device..\n')
+os.system('adb reboot bootloader')
+input('Press Enter when your device is ready.. (This may take time, depending on your cpu/serial port)\n')
+
+codeOEM = tryUnlockBootloader(luhn_checksum(imei))
 
 os.system('fastboot getvar unlocked')
 os.system('fastboot reboot')
 
 print('\n\nDevice unlock ! OEM CODE : '+codeOEM)
 print('(Keep it safe)\n')
-input('Press any key to exit..\n')
+input('Press Enter to exit..\n')
 exit()
+
 
